@@ -47,9 +47,10 @@ The KV cache quantization is the most impactful flag here — it cuts KV cache V
 - **Symptom**: `llama-server` fails with `error while loading shared libraries: libcudart.so.13`.
 - **Fix**: Add `/usr/lib/wsl/lib` to `LD_LIBRARY_PATH` (persist in `~/.bashrc`).
 
-**2. WSL2 networking — Windows can't reach localhost**
-- **Symptom**: Clients on Windows throw connection errors against `http://127.0.0.1:8331/v1`.
-- **Fix**: WSL2 uses NAT, so use `ip addr` to find your WSL LAN IP and point clients there instead of `127.0.0.1`. Also bump client timeout to 120s+.
+**2. Client Compatibility — DSH fails while WSL-native agents work**
+- **Symptom**: The DSH desktop client throws `Connection error` or `Request timed out` against `http://127.0.0.1:8331/v1`. However, running Hermes Agent directly inside WSL works flawlessly.
+- **Cause**: This is **not** a WSL network issue. The root cause is that heavy GUI clients (like DSH) inject large system prompts, tool definitions, and complex framework constraints. This forces the 27B model into a very long pre-fill phase, exceeding the client's default short timeout (often <15s). Lighter, terminal-native agents (like Hermes) send much smaller payloads and therefore respond quickly.
+- **Fix**: For heavy GUI clients, increase the timeout setting to 120s+ if available, or reduce the context window they use. Otherwise, prefer lightweight, terminal-native agents (Hermes, Cline) which are far better suited for local, resource-constrained models. The underlying `llama-server` itself is healthy and serving requests correctly.
 
 **3. OOM crashes under load**
 - **Symptom**: Server crashes when handling long contexts or complex prompts.
