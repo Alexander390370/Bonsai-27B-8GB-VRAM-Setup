@@ -47,10 +47,11 @@ The KV cache quantization is the most impactful flag here — it cuts KV cache V
 - **Symptom**: `llama-server` fails with `error while loading shared libraries: libcudart.so.13`.
 - **Fix**: Add `/usr/lib/wsl/lib` to `LD_LIBRARY_PATH` (persist in `~/.bashrc`).
 
-**2. Client Compatibility — DSH fails while WSL-native agents work**
-- **Symptom**: The DSH desktop client throws `Connection error` or `Request timed out` against `http://127.0.0.1:8331/v1`. However, running Hermes Agent directly inside WSL works flawlessly.
-- **Cause**: This is **not** a WSL network issue. The root cause is that heavy GUI clients (like DSH) inject large system prompts, tool definitions, and complex framework constraints. This forces the 27B model into a very long pre-fill phase, exceeding the client's default short timeout (often <15s). Lighter, terminal-native agents (like Hermes) send much smaller payloads and therefore respond quickly.
-- **Fix**: For heavy GUI clients, increase the timeout setting to 120s+ if available, or reduce the context window they use. Otherwise, prefer lightweight, terminal-native agents (Hermes, Cline) which are far better suited for local, resource-constrained models. The underlying `llama-server` itself is healthy and serving requests correctly.
+**2. Client compatibility — DeepSeek Harness (dsh) fails, WSL-native agents work**
+- **Symptom**: Requests from the DSH desktop app on the Windows side fail with `Connection error` or `Request timed out` against `http://127.0.0.1:8331/v1`. The same `llama-server` responds normally when the client runs inside WSL (Hermes Agent works fine).
+- **Likely cause**: Not a WSL networking issue — `curl` against the same endpoint returns as expected. [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) is an agent harness, so each request carries a large system prompt plus a full tool/skill registry. That pushes the 27B model into a long prefill phase, which exceeds the client's default timeout. Lighter terminal-native agents send much smaller payloads and get a first token quickly.
+- **Workaround**: Raise the timeout to 120s+ where the client allows it, or trim the tool set / context it sends. In practice, lightweight agents (Hermes, minimal CLI clients) are a much better fit for a 27B model on 8GB VRAM.
+- **Status**: Not fully root-caused yet — if anyone gets DSH working against a local `llama.cpp` server, I'd love to hear how.
 
 **3. OOM crashes under load**
 - **Symptom**: Server crashes when handling long contexts or complex prompts.
