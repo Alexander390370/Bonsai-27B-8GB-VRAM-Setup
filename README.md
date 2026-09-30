@@ -105,6 +105,13 @@ These are rough numbers from my setup — YMMV.
 - **Quality is constrained by ternary quantization.** While near-lossless on average, ternary quantization can degrade multi-step reasoning and specialist factual knowledge. The KV cache quantization (`q4_0`) adds a further perplexity increase (see the quality note above).
 - **VRAM headroom is minimal.** Even minor GPU memory drift from background processes can trigger OOM.
 
+## Related Work
+
+- **[OmniForge-Data-Annotation](https://github.com/Alexander390370/OmniForge-Data-Annotation)** — full-modal data annotation
+- **[sd-forge-8gb-vram-setup](https://github.com/Alexander390370/sd-forge-8gb-vram-setup)** — Stable Diffusion on the same 8GB card
+- **[esp32-edge-ai-security](https://github.com/Alexander390370/esp32-edge-ai-security)** — edge AI on the hardware side
+- **[esp32-pwm-fan-controller](https://github.com/Alexander390370/esp32-pwm-fan-controller)** — hardware-side firmware
+
 ## About Me
 
 - GitHub: [@Alexander390370](https://github.com/Alexander390370)
