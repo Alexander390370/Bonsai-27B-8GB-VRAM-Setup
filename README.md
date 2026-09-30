@@ -84,7 +84,7 @@ You can pass these per-request via the OpenAI-compatible API, or set them as ser
 - **Community runtime**: Check out [sudoingX/bonsai2-small-gpu](https://github.com/sudoingX/bonsai2-small-gpu) for kernel-level optimizations, including a 1.5x faster decode kernel and a grafted MTP head[reference:8].
 - **Higher-precision KV cache**: If quality is more important than context length, try `q8_0` for KV cache. It saves ~47% KV memory (vs 72% for `q4_0`) but has negligible quality loss.
 
-## 📊 Benchmarks (My Numbers)
+##  Benchmarks (My Numbers)
 
 These are rough numbers from my setup — YMMV.
 
