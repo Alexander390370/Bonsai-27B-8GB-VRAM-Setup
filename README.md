@@ -1,19 +1,19 @@
-# 🚀 Running 27B LLM on 8GB VRAM (RTX 4060)
+#   Running 27B LLM on 8GB VRAM (RTX 4060)
 
 > Running a 27B parameter model with 64K context on an 8GB VRAM laptop — here's how I got it working.
 
-## 📋 Overview
+##  Overview
 
 This repo documents my experience deploying **Ternary Bonsai 2 27B** (a ternary-weight quantized LLM) on a resource-constrained setup: WSL2 (Ubuntu) + RTX 4060 Laptop (8GB VRAM). It covers the setup steps, gotchas I ran into, and tweaks that helped squeeze out more performance.
 
-## 💻 Hardware & Environment
+## Hardware & Environment
 
 - **GPU**: NVIDIA RTX 4060 Laptop (8GB VRAM)
 - **OS**: Windows 11 + WSL2 (Ubuntu 22.04)
 - **Model**: `Ternary-Bonsai-2-27B-PTQ1_0.gguf` (~5.6GB)
 - **Runtime**: PrismML fork of `llama.cpp` (CUDA 13.3)
 
-## 🛠️ Quick Start
+## Quick Start
 
 The model server exposes an OpenAI-compatible API:
 
@@ -30,7 +30,7 @@ export LD_LIBRARY_PATH=/usr/lib/wsl/lib:$PWD:$LD_LIBRARY_PATH
   --cache-type-k q4_0 --cache-type-v q4_0
 ```
 
-### 💡 Parameter Notes
+### Parameter Notes
 
 | Flag | What it does |
 |------|---------------|
@@ -41,7 +41,7 @@ export LD_LIBRARY_PATH=/usr/lib/wsl/lib:$PWD:$LD_LIBRARY_PATH
 
 The KV cache quantization is the most impactful flag here — it cuts KV cache VRAM usage by roughly half, which is what makes 64K possible on an 8GB card.
 
-## ⚠️ Gotchas & Fixes
+## Gotchas & Fixes
 
 **1. Missing CUDA runtime libraries**
 - **Symptom**: `llama-server` fails with `error while loading shared libraries: libcudart.so.13`.
@@ -55,18 +55,18 @@ The KV cache quantization is the most impactful flag here — it cuts KV cache V
 - **Symptom**: Server crashes when handling long contexts or complex prompts.
 - **Fix**: 8GB is tight. Close other GPU-heavy apps (LM Studio, Ollama, SD WebUI) before starting.
 
-## 🚀 Things Worth Exploring
+## Things Worth Exploring
 
 - **MTP speculative decoding**: Try `--spec-type draft-mtp --spec-draft-n-max 2` if your model supports it.
 - **Community runtime**: Check out [sudoingX/bonsai2-small-gpu](https://github.com/sudoingX/bonsai2-small-gpu) for kernel-level optimizations.
 
-## 📊 Benchmarks (My Numbers)
+## Benchmarks (My Numbers)
 
 - **TTFT**: ~3-5s (with 64K context)
 - **Throughput**: ~20-23 t/s (sustained)
 - **Concurrency**: Single client at a time
 
-## 🤝 About Me
+## About Me
 
 - GitHub: [@Alexander390370](https://github.com/Alexander390370)
 - I tinker with AIoT, edge AI, and embedded systems. Always learning.
