@@ -118,5 +118,8 @@ These are rough numbers from my setup — YMMV.
 - I tinker with AIoT, edge AI, and embedded systems. Always learning.
 - This configuration is laptop-specific. Desktop RTX 4060 (8GB) yields comparable numbers, though sustained power and thermal behaviour differ from laptop SKUs.
 
+## License
+
+Distributed under the MIT License. See [LICENSE](./LICENSE) for details.
 ---
 *Feel free to open issues or PRs if you find better configs!*
