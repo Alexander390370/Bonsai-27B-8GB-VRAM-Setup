@@ -302,11 +302,41 @@ curl -s http://127.0.0.1:11434/api/generate -d '{"model":"<name>","keep_alive":0
 
 ---
 
-## Things Worth Exploring (unverified)
+## Verified Dead Ends
 
-- **MTP speculative decoding**: check whether your GGUF embeds the MTP head; if yes, try `--spec-type draft-mtp --spec-draft-n-max 2`. Not tested here.
-- **`--kv-mean-center`**: this build exposes it (requires `q4_0` K cache) and it targets q4_0 K quality. Not benchmarked.
-- **Community runtime**: [`sudoingX/bonsai2-small-gpu`](https://github.com/sudoingX/bonsai2-small-gpu) claims a 1.5x decode kernel and grafted MTP head for low-VRAM setups. Not verified.
+Three optimizations that look promising on paper but do not work on this model. Tested, not guessed.
+
+### MTP speculative decoding — impossible with this GGUF
+
+The model file contains **no MTP head**. Verified by parsing the GGUF tensor table:
+
+```
+tensors: 851
+names containing mtp/draft/nextn/spec: 0
+```
+
+Speculative decoding needs a draft model. Since this GGUF has no embedded MTP head, `--spec-type draft-mtp` has nothing to draft with. You would need a separate draft model (the community `bonsai2-small-gpu` repo grafts one in).
+
+### Larger `-ub` (ubatch) makes prefill SLOWER — counterintuitive
+
+Conventional llama.cpp advice is to raise `-ub` for faster prompt processing. **On this model it backfires.**
+
+| `-ub` | Prefill speed | VRAM | 2.3K prompt, total time |
+|---|---|---|---|
+| **512** (default) | **559.8 tok/s** | 7444 MB | **8.1 s** |
+| 1024 | — | — | (interpolates between the two) |
+| 2048 | 444.9 tok/s | 7802 MB | 10.7 s |
+
+Raising `-ub` from 512 to 2048: **-20% prefill speed, +358 MB VRAM.**
+
+**Why**: this is not a pure Transformer. The tensor table shows `blk.N.ssm_a`, `ssm_alpha`, `ssm_conv1d`, `ssm_dt` — it is a **hybrid SSM/Mamba architecture**. SSM recurrence does not parallelize across a wide batch the way attention does, so a bigger ubatch just adds overhead.
+
+**Action**: leave `-ub` at the default. If you want to test, measure prefill (`prompt eval time` in the log), not decode speed.
+
+### `--kv-mean-center`
+
+This build exposes it (requires `q4_0` K cache) and it targets q4_0 K quality. Not benchmarked — plausible but unproven.
+
 
 ---
 
